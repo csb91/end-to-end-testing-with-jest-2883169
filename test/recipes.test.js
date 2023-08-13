@@ -13,7 +13,7 @@ describe('test the recipes API', () => {
     const password = bcrypt.hashSync('okay', 10);
     await User.create({
       username: 'admin',
-      password
+      password,
     });
   });
 
@@ -48,6 +48,78 @@ describe('test the recipes API', () => {
       );
     });
 
+    it ('do not sign him in, password field can not be empty', async () => {
+      //DATA YOU WANT TO SAVE TO DB
+      const user = {
+        username: 'admin',
+      };
+      const res = await request (app)
+        .post('/login')
+        .send(user);
 
+      expect(res.statusCode).toEqual(400);
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          success: false,
+          message: 'username or password can not be empty',
+        }),
+      );
+    });
+
+    it ('do not sign him in, username field can not be empty', async () => {
+      //DATA YOU WANT TO SAVE TO DB
+      const user = {
+        password: 'okay',
+      }
+      const res = await request (app)
+        .post('/login')
+        .send(user);
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          success: false,
+          message: 'username or password can not be empty'
+        }),
+      );
+    });
+
+    it ('do not sign him in, username does not exist', async () => {
+      //DATA YOU WANT TO SAVE TO DB
+      const user = {
+        username: 'carter',
+        password:'abcd'
+      }
+      const res = await request (app)
+        .post('/login')
+        .send(user)
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          success: false,
+          message: 'Incorrect username or password',
+        }),
+      );
+    });
+
+    it ('do not sign him in, incorrect password', async () => {
+      //DATA YOU WANT TO SAVE TO DB
+      const user = {
+        username: 'admin',
+        password: 'pappa',
+      };
+      const res = await request (app)
+        .post('/login')
+        .send(user);
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          success: false,
+          message: 'Incorrect username or password',
+        }),
+      );
+    });
   });
 });
